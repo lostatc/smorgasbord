@@ -3,10 +3,9 @@ import { ref } from "vue";
 import { sessionsEndpoint } from "@/api";
 import NameInput from "@/components/NameInput.vue";
 import { useRouter } from "vue-router";
-import { type FormInst, NButton, NForm, NUl, NLi, NFlex } from "naive-ui";
 import { useMessage } from "@/message";
 
-const formRef = ref<FormInst>();
+const formRef = ref<HTMLFormElement>();
 const names = ref({ sender: "", recipient: "" });
 
 const router = useRouter();
@@ -64,10 +63,10 @@ const startSession = async () => {
 
 <template>
   <main aria-labelledby="main-heading">
-    <h1 id="main-heading" class="title">Start a new discussion</h1>
-    <n-flex size="large" justify="space-around">
+    <h1 id="main-heading" class="text-center mb-4">Start a new discussion</h1>
+    <div class="d-flex justify-content-around">
       <div class="form">
-        <n-form aria-labelledby="main-heading" ref="formRef" :rules="rules" :model="names">
+        <form aria-labelledby="main-heading" ref="formRef" :rules="rules" :model="names">
           <name-input id="sender" label="Your name" path="sender" v-model="names.sender" />
           <name-input
             id="recipient"
@@ -75,51 +74,46 @@ const startSession = async () => {
             path="recipient"
             v-model="names.recipient"
           />
-          <n-button @click="startSession">Start</n-button>
-        </n-form>
+          <button @click="startSession" class="btn btn-primary">Start</button>
+        </form>
       </div>
       <aside class="aside">
-        <n-ul>
-          <n-li>
+        <ul>
+          <li>
             <p>You won't be able to see each other's answers until you're both done answering.</p>
-          </n-li>
-          <n-li>
+          </li>
+          <li>
             <p>
               You'll only see the answers that you agree on. If one of you selects "No" to a
               particular question, you won't see how the other person responded. Don't be afraid to
               say yes to something just because you're worried the other person will say no!
             </p>
-          </n-li>
-          <n-li>
+          </li>
+          <li>
             <p>
               If you want to change your answers, you'll both have the opportunity to go back and
               make changes before you can compare answers again.
             </p>
-          </n-li>
-          <n-li>
+          </li>
+          <li>
             <p>
               The purpose of this tool is to start a discussion, not to replace one! Once you
               compare answers, take the time to ask each other clarifying questions.
             </p>
-          </n-li>
-          <n-li>
+          </li>
+          <li>
             <p>
               You can delete your data from this website at any time. It will auto-delete after 7
               days.
             </p>
-          </n-li>
-        </n-ul>
+          </li>
+        </ul>
       </aside>
-    </n-flex>
+    </div>
   </main>
 </template>
 
 <style scoped>
-.title {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
 .form {
   flex: 0 1 20rem;
 }
