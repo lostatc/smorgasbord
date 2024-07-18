@@ -1,29 +1,18 @@
 <script setup lang="ts">
-import { NEl, NA } from "naive-ui";
 import { computed } from "vue";
 
-const props = defineProps<{ to: string; target?: string; size?: "large" | "regular" }>();
+const props = defineProps<{ to: string; target?: string }>();
 
-const size = computed(() => props.size ?? "regular");
 const isExternalLink = computed(() => props.to.startsWith("https://"));
 </script>
 
 <template>
-  <n-el tag="span" :data-size="size" class="nav-link">
-    <n-a v-if="isExternalLink" :href="props.to" :target="props.target">
-      <slot />
-    </n-a>
-    <router-link v-else v-slot="{ href, navigate }" :to="props.to">
-      <n-a :href="href" @click="navigate">
-        <slot />
-      </n-a>
-    </router-link>
-  </n-el>
+  <a v-if="isExternalLink" class="link-primary" :href="props.to" :target="props.target">
+    <slot />
+  </a>
+  <router-link v-else class="link-primary" :to="props.to">
+    <slot />
+  </router-link>
 </template>
 
-<style scoped>
-.nav-link[data-size="large"] {
-  font-size: var(--font-size-large);
-  font-weight: 600;
-}
-</style>
+<style scoped></style>

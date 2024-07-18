@@ -1,32 +1,23 @@
 <script setup lang="ts">
-import { NFlex, NText } from "naive-ui";
 import NavLink from "@/components/NavLink.vue";
 import { RouterView } from "vue-router";
 </script>
 
 <template>
-  <header>
+  <header class="mb-4">
     <!--
         This is deliberately not marked as a `<nav>` because it's just a single
         link to the homepage. Signaling it as a navigation landmark might be
         misleading unless we add more links up there.
     -->
-    <n-flex size="medium">
-      <nav-link to="/" size="large">Discuss.love</nav-link>
-      <n-text depth="2">A tool for negotiating relationships</n-text>
-    </n-flex>
+    <div class="d-flex align-items-baseline gap-2">
+      <nav-link class="fs-5 fw-bold" to="/">Discuss.love</nav-link>
+      <span class="text-muted">A tool for negotiating relationships</span>
+    </div>
   </header>
-  <n-flex justify="center">
-    <router-view class="body" />
-  </n-flex>
+  <div class="d-flex justify-content-center">
+    <router-view />
+  </div>
 </template>
 
-<style scoped>
-header {
-  margin-bottom: 2rem;
-}
-
-.body {
-  flex-grow: 1;
-}
-</style>
+<style scoped></style>

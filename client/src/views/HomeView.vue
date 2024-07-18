@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { NButton } from "naive-ui";
 import { useRouter } from "vue-router";
 import NavLink from "@/components/NavLink.vue";
 
@@ -12,10 +11,10 @@ const navigateStart = () => {
 
 <template>
   <main aria-labelledby="main-heading">
-    <h1 id="main-heading" class="site-title">Negotiate your relationships</h1>
-    <n-button @click="navigateStart" type="primary" class="start-button"
-      >Start a Discussion</n-button
-    >
+    <h1 id="main-heading" class="mt-3 text-center">Negotiate your relationships</h1>
+    <button @click="navigateStart" class="d-block btn btn-primary my-4 mx-auto">
+      Start a Discussion
+    </button>
     <div class="body">
       <p>
         This is a tool for negotiating relationships. Each of you will pick and choose what you want
@@ -32,31 +31,13 @@ const navigateStart = () => {
         associated with relationship anarchy.
       </p>
     </div>
-    <p class="callout-link">
+    <p class="text-center">
       <nav-link to="https://github.com/lostatc/discuss.love" target="_blank">GitHub</nav-link>
     </p>
   </main>
 </template>
 
 <style scoped>
-.site-title {
-  display: block;
-  text-align: center;
-}
-
-.start-button {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-}
-
-.callout-link {
-  text-align: center;
-  margin-top: 2rem;
-}
-
 .body {
   text-align: justify;
   max-width: 50rem;
