@@ -24,7 +24,9 @@ import Button from "primevue/button";
         associated with relationship anarchy.
       </p>
     </div>
-    <p class="text-center my-4">
+    <p class="flex gap-2 text-center mt-4">
+      <a href="mailto:wren@discuss.love">wren@discuss.love</a>
+      <span>•</span>
       <a href="https://github.com/lostatc/discuss.love" target="_blank">GitHub</a>
     </p>
   </main>
