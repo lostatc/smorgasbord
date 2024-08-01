@@ -1,23 +1,13 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import type { AttributedAnswer } from "@/types";
+import { computed } from "vue";
+import type { AttributedAnswer, QuestionDefinition } from "@/types";
 import QuestionAnswer from "@/components/QuestionAnswer.vue";
-import { questionMap } from "@/questions";
 
 const props = defineProps<{
-  id: string;
+  definition?: QuestionDefinition;
   senderAnswer?: AttributedAnswer;
   recipientAnswer?: AttributedAnswer;
 }>();
-
-const questionDef = computed(() => questionMap.get(props.id));
-
-if (questionDef.value === undefined) {
-  throw new Error(`Question with id '${props.id}' not found.`);
-}
-
-const title = ref(questionDef.value.title);
-const description = ref(questionDef.value.description);
 
 const answerStatus = computed(() => {
   if (
@@ -48,7 +38,10 @@ const answerStatus = computed(() => {
 </script>
 
 <template>
-  <section :aria-labelledby="`answer-section-heading-${props.id}`">
+  <section
+    v-if="props.definition"
+    :aria-labelledby="`answer-section-heading-${props.definition.id}`"
+  >
     <div class="flex items-baseline gap-2">
       <i
         v-if="answerStatus === 'unsure'"
@@ -70,9 +63,9 @@ const answerStatus = computed(() => {
         class="pi pi-circle response-icon icon-warn"
         aria-hidden
       ></i>
-      <h2 :id="`answer-section-heading-${props.id}`">{{ title }}</h2>
+      <h2 :id="`answer-section-heading-${props.definition.id}`">{{ props.definition.title }}</h2>
     </div>
-    <p>{{ description }}</p>
+    <p>{{ props.definition.description }}</p>
     <div class="sm:ml-8" v-if="!props.senderAnswer || !props.recipientAnswer">
       <i>Someone didn't answer this question.</i>
     </div>

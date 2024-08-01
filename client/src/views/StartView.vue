@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { sessionsEndpoint } from "@/api";
 import TextInput from "@/components/TextInput.vue";
 import Button from "primevue/button";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 
 const ERROR_TOAST_TTL = 3000;
@@ -11,8 +11,11 @@ const ERROR_TOAST_TTL = 3000;
 const names = ref({ sender: "", recipient: "" });
 const validationErrors = ref({ sender: "", recipient: "" });
 
+const route = useRoute();
 const router = useRouter();
 const toast = useToast();
+
+const questionsUrl = ref<string>(route.query.questions as string);
 
 const startSession = async () => {
   if (!names.value.sender) {
@@ -54,7 +57,11 @@ const startSession = async () => {
   // storage so we can differentiate the sender from the recipient.
   localStorage.setItem("code", code);
 
-  await router.push({ path: "/join", query: { code } });
+  if (questionsUrl.value) {
+    await router.push({ path: "/join", query: { code, questions: questionsUrl.value } });
+  } else {
+    await router.push({ path: "/join", query: { code } });
+  }
 };
 </script>
 

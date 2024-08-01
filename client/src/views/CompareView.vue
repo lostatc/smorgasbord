@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, ref } from "vue";
-import type { FormAnswers, SessionInfo, ResponseStatus } from "@/types";
+import type { FormAnswers, SessionInfo, ResponseStatus, QuestionDefinition } from "@/types";
 import AnswerComparison from "@/components/AnswerComparison.vue";
 import { sessionsEndpoint, submissionsEndpoint } from "@/api";
 import { useRoute, useRouter } from "vue-router";
@@ -10,6 +10,7 @@ import { useVueToPrint } from "vue-to-print";
 import Button from "primevue/button";
 import printStyles from "@/assets/print.css?raw";
 import ActionHeader from "@/components/ActionHeader.vue";
+import { fetchQuestionMap } from "@/questions";
 
 const ERROR_TOAST_TTL = 3000;
 
@@ -18,6 +19,7 @@ const toast = useToast();
 const confirm = useConfirm();
 
 const sharingCode = ref<string>(route.query.code as string);
+const questionsUrl = ref<string>(route.query.questions as string);
 
 const status = ref<ResponseStatus<["loading" | "waiting" | "expired" | "success"]>>({
   status: "loading",
@@ -25,6 +27,7 @@ const status = ref<ResponseStatus<["loading" | "waiting" | "expired" | "success"
 
 const sessionInfo = ref<SessionInfo>();
 const formAnswers = ref<FormAnswers>();
+const questionMap = ref<Map<string, QuestionDefinition>>(new Map());
 
 const answerPairs = computed(() => {
   if (!sessionInfo.value || !formAnswers.value) return [];
@@ -57,7 +60,17 @@ const answerPairs = computed(() => {
 const router = useRouter();
 
 const navigateEditPage = () => {
-  router.push(`/join?code=${sharingCode.value}`);
+  if (questionsUrl.value) {
+    router.push({
+      path: "/join",
+      query: { code: sharingCode.value, questions: questionsUrl.value },
+    });
+  } else {
+    router.push({
+      path: "/join",
+      query: { code: sharingCode.value },
+    });
+  }
 };
 
 const hasPreviouslyCompleted = computed(
@@ -132,10 +145,22 @@ const errorProps = computed(() =>
 );
 
 onBeforeMount(async () => {
-  const [sessionResponse, submissionResponse] = await Promise.all([
+  const [questionMapResponse, sessionResponse, submissionResponse] = await Promise.all([
+    fetchQuestionMap(questionsUrl.value),
     fetch(sessionsEndpoint(sharingCode.value)),
     fetch(submissionsEndpoint(sharingCode.value)),
   ]);
+
+  if (questionMapResponse.status === "error") {
+    status.value = {
+      status: "error",
+      error: questionMapResponse.error,
+    };
+
+    return;
+  } else {
+    questionMap.value = questionMapResponse.map;
+  }
 
   const [sessionResponseBody, submissionResponseBody] = await Promise.all([
     sessionResponse.json(),
@@ -146,6 +171,7 @@ onBeforeMount(async () => {
     status.value = {
       status: "expired",
     };
+
     return;
   }
 
@@ -154,6 +180,7 @@ onBeforeMount(async () => {
       status: "error",
       error: sessionResponseBody.error,
     };
+
     return;
   }
 
@@ -161,6 +188,7 @@ onBeforeMount(async () => {
     status.value = {
       status: "waiting",
     };
+
     return;
   }
 
@@ -169,6 +197,7 @@ onBeforeMount(async () => {
       status: "error",
       error: submissionResponseBody.error,
     };
+
     return;
   }
 
@@ -228,6 +257,7 @@ onBeforeMount(async () => {
       >
         <AnswerComparison
           :id="pair.id"
+          :definition="questionMap.get(pair.id)"
           :sender-answer="pair.sender"
           :recipient-answer="pair.recipient"
           v-for="pair in answerPairs"

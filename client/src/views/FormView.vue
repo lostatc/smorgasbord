@@ -11,7 +11,7 @@ import {
   type WithQuestionId,
 } from "@/types";
 import { RouterLink, useRoute, useRouter } from "vue-router";
-import { randomizedQuestionCategories } from "@/questions";
+import { fetchRandomizedQuestionCategories, type QuestionCategory } from "@/questions";
 import { sessionsEndpoint, submissionsEndpoint } from "@/api";
 import Button from "primevue/button";
 import Panel from "primevue/panel";
@@ -26,6 +26,7 @@ const router = useRouter();
 const toast = useToast();
 
 const sharingCode = ref<string>(route.query.code as string);
+const questionsUrl = ref<string>(route.query.questions as string);
 const player = ref<Player>();
 
 const status = ref<
@@ -98,7 +99,14 @@ const getStoredResponse = (id: string): Response | undefined => {
 };
 
 const viewSubmissions = () => {
-  router.push({ path: "/compare", query: { code: sharingCode.value } });
+  if (questionsUrl.value) {
+    router.push({
+      path: "/compare",
+      query: { code: sharingCode.value, questions: questionsUrl.value },
+    });
+  } else {
+    router.push({ path: "/compare", query: { code: sharingCode.value } });
+  }
 };
 
 const submitForm = async () => {
@@ -161,6 +169,8 @@ const errorProps = computed(() =>
     : undefined,
 );
 
+const questionCategories = ref<ReadonlyArray<QuestionCategory>>();
+
 onBeforeMount(async () => {
   const storedSharingCode = localStorage.getItem("code");
 
@@ -175,10 +185,19 @@ onBeforeMount(async () => {
     ? JSON.parse(initialStoredResponsesString)
     : undefined;
 
-  const [sessionResponse, submissionResponse] = await Promise.all([
+  const [questionsResponse, sessionResponse, submissionResponse] = await Promise.all([
+    fetchRandomizedQuestionCategories(sharingCode.value, questionsUrl.value),
     fetch(sessionsEndpoint(sharingCode.value)),
     fetch(submissionsEndpoint(sharingCode.value)),
   ]);
+
+  if (questionsResponse.status === "error") {
+    status.value = { status: "error", error: questionsResponse.error };
+
+    return;
+  } else {
+    questionCategories.value = questionsResponse.categories;
+  }
 
   if (sessionResponse.status === 404) {
     status.value = { status: "session-nonexistent" };
@@ -267,7 +286,7 @@ onBeforeMount(async () => {
             toggleable
             collapsed
             :header="category.name"
-            v-for="category in randomizedQuestionCategories(sharingCode)"
+            v-for="category in questionCategories"
             :key="category.name"
           >
             <template #header>
