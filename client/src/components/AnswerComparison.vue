@@ -41,6 +41,7 @@ const answerStatus = computed(() => {
   <section
     v-if="props.definition"
     :aria-labelledby="`answer-section-heading-${props.definition.id}`"
+    class="ml-20"
   >
     <div class="flex items-baseline gap-2">
       <i
